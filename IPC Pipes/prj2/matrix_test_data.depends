@@ -1,0 +1,1 @@
+matrix_test_data.o: matrix_test_data.c matrix_test_data.h matrix_mul.h
