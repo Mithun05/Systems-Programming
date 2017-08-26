@@ -1,0 +1,1 @@
+dense_matrix.o: dense_matrix.c abstract_matrix.h matrix.h dense_matrix.h
