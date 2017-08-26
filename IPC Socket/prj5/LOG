@@ -1,0 +1,134 @@
+#daemon must be invoked with an argument
+$ ./prj4d
+usage: ./prj4d <shm-size-kib>
+
+#daemon must be invoked with a positive argument
+$ ./prj4d 4x
+usage: ./prj4d <shm-size-kib>
+
+#start daemon with 4K shm
+$ ./prj4d 4
+21042
+
+#usage message for client
+$ ./prj4c -h
+usage ./prj4c [<options>] [<filename>...]
+  A test file <filename> consists of one or more matrices with
+  each matrix consisting of whitespace separated DESC NROWS NCOLS
+  ENTRY... If no --random or <filename>, then read test from stdin
+  Allows <options> are
+    --gold | -g
+	Only use guaranteed correct gold multiplication;
+	do not use test multiplication
+    --help | -h
+	Produce usage message
+    --output | -o
+	for each test show multiplicand, multiplier and product matrices
+    --random NAME:NROWSxNCOLS | -r NAME:NROWSxNCOLS
+	generate random matrix with description "NAME:NROWSxNCOLS"
+	with NROWS rows and NCOLS columns
+    --seed SEED | -s SEED
+	Set seed of random number generator to SEED
+
+#run client with stdin data
+$ echo 'mat2x2 2 2 1 2 3 4' | ./prj4c -o
+multiplicand mat2x2 
+       1       2
+       3       4
+multiplier mat2x2 
+       1       2
+       3       4
+product: mat2x2  x  mat2x2 
+       7      10
+      15      22
+------------
+
+#run client with random 6x6 matrix
+$ ./prj4c -o -r r6x6:6x6
+multiplicand r6x6:6x6 
+      64     -79      -5      81      22      86
+       1      46     -79      19      33     -90
+     -83      61     -68      31      44     -53
+     -41      65      17     -49     -15     -97
+      65     -28     -20      20     -63     -72
+      75      77     -51     -53      35      47
+multiplier r6x6:6x6 
+      64     -79      -5      81      22      86
+       1      46     -79      19      33     -90
+     -83      61     -68      31      44     -53
+     -41      65      17     -49     -15     -97
+      65     -28     -20      20     -63     -72
+      75      77     -51     -53      35      47
+product: r6x6:6x6  x  r6x6:6x6 
+    8991    2276    2812   -4559   -1010    7480
+    1283   -9401    5986    3005   -7450   -8316
+   -1993    1917    2570   -5502   -7897  -17690
+  -10211   -2968   -1672    5683     276   -9003
+   -4523  -10123    8519    5689     775    8382
+   17083   -6300   -6988    6763    2182    7053
+------------
+
+#run client using data file
+$  ./prj4c -o matrix.dat 
+multiplicand A[3][3] 
+       1      -2      -3
+       4      -5       6
+       7       8      -9
+multiplier A[3][3] 
+       1      -2      -3
+       4      -5       6
+       7       8      -9
+product: A[3][3]  x  A[3][3] 
+     -28     -16      12
+      26      65     -96
+     -24    -126     108
+------------
+multiplicand A[3][3] 
+       1      -2      -3
+       4      -5       6
+       7       8      -9
+multiplier B[3][3] 
+      12      34      56
+       1       2       3
+      -1      -2      -3
+product: A[3][3]  x  B[3][3] 
+      13      36      59
+      37     114     191
+     101     272     443
+------------
+multiplicand B[3][3] 
+      12      34      56
+       1       2       3
+      -1      -2      -3
+multiplier A[3][3] 
+       1      -2      -3
+       4      -5       6
+       7       8      -9
+product: B[3][3]  x  A[3][3] 
+     540     254    -336
+      30      12     -18
+     -30     -12      18
+------------
+multiplicand B[3][3] 
+      12      34      56
+       1       2       3
+      -1      -2      -3
+multiplier B[3][3] 
+      12      34      56
+       1       2       3
+      -1      -2      -3
+product: B[3][3]  x  B[3][3] 
+     122     364     606
+      11      32      53
+     -11     -32     -53
+------------
+#20x20 matrices too large for 4KB shm.
+$  ./prj4c  -r r20x20:20x20
+matMul(): Value too large for defined data type
+
+#but 16x6 matrices work
+$  ./prj4c  -r r16x16:16x16
+
+#cleanup daemon and shm
+$ killall prj4d; rm /dev/shm/umrigar-shm 
+$ 
