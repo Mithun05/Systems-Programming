@@ -1,1 +1,0 @@
-mat_test_data.o: mat_test_data.c mat_test_data.h matmul.h mat_base.h
